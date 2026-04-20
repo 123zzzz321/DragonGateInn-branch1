@@ -59,7 +59,7 @@ function (_transaction) {
           password = args[1];
       var newHeadquarterAccount = new headquarterAccount(headquarterId, password);
       transaction.getManager(headquarterManager).addOneNewAccount(newHeadquarterAccount);
-      return newHeadquarterAccount;
+      return this.packageResult(true, newHeadquarterAccount, "注册成功");
     }
   }]);
 

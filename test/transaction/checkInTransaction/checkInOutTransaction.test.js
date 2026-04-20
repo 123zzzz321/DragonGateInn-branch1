@@ -14,7 +14,7 @@ const allCheckInManager=require('../../../branchResource/checkIn/allCheckInManag
 describe('createCheckInTransaction',()=>{
     it('createCheckInTransaction',()=>{
         const newBranchRegisterTransaction=new branchRegisterTransaction();
-        const newBranchAccount= newBranchRegisterTransaction.execute();
+        const newBranchAccount= newBranchRegisterTransaction.execute().resultContent;
 
         SingletonFactory.getInstance(allRoomManager)
             .getOneManagerByBranchId(newBranchAccount.getID())

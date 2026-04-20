@@ -21,7 +21,7 @@ describe('顾客的预订房间事务', function () {
     var newCustomerRegisterTransaction = new customerRegisterTransaction();
     var customerId = newCustomerRegisterTransaction.execute('138000000000', '123456').getID();
     var newBranchRegisterTransaction = new branchRegisterTransaction();
-    var branchId = newBranchRegisterTransaction.execute().getID();
+    var branchId = newBranchRegisterTransaction.execute().resultContent.getID();
     var newCustomerReservateTransaction = new customerReservateTransaction();
     var reservation = newCustomerReservateTransaction.execute(customerId, branchId, {
       area: 100,

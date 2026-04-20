@@ -23,7 +23,7 @@ var allCheckInManager = require('../../../branchResource/checkIn/allCheckInManag
 describe('createCheckInTransaction', function () {
   it('createCheckInTransaction', function () {
     var newBranchRegisterTransaction = new branchRegisterTransaction();
-    var newBranchAccount = newBranchRegisterTransaction.execute();
+    var newBranchAccount = newBranchRegisterTransaction.execute().resultContent;
     SingletonFactory.getInstance(allRoomManager).getOneManagerByBranchId(newBranchAccount.getID()).addRoom(new room("testRoom"));
     var curCreateCheckInTransaction = new createCheckInTransaction();
     var newCheckIn = curCreateCheckInTransaction.execute(newBranchAccount.getID(), 'testRoom', [new person('name1', 'id1')]).resultContent;

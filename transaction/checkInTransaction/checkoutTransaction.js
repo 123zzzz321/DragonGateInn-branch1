@@ -14,23 +14,24 @@ class checkoutTransaction extends transaction{
      * @returns {object} 包含是否成功、入住订单、提示信息的对象
      */
     execute(...args){
-       assert(args.length==1,"参数数量错误");
-       const checkInId=args[0];
-      
-       const curCheckIn= transaction.getManager(allCheckInManager).getOneObjectById(checkInId);
-       if(curCheckIn==undefined){
-           return this.packageResult(false,null,"入住订单不存在");
-       }
-
-       if(curCheckIn.getIsCheckedOut()==true){
-           return this.packageResult(false,null,"入住订单已退房");
-       }
-
-       // 设置退房日期为当前时间
-       curCheckIn.setCheckOutDateAsNow();
-            
-
-       return this.packageResult(true,curCheckIn,"入住订单退房成功");
+        super.execute(...args);
+        assert(args.length==1,"参数数量错误");
+        const checkInId=args[0];
+        
+        const curCheckIn= transaction.getManager(allCheckInManager).getOneObjectById(checkInId);
+        if(curCheckIn==undefined){
+            return this.packageResult(false,null,"入住订单不存在");
+        }
+       
+        if(curCheckIn.getIsCheckedOut()==true){
+            return this.packageResult(false,null,"入住订单已退房");
+        }
+       
+        // 设置退房日期为当前时间
+        curCheckIn.setCheckOutDateAsNow();
+             
+       
+        return this.packageResult(true,curCheckIn,"入住订单退房成功");
     }
 }
 module.exports=checkoutTransaction;

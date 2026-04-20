@@ -45,7 +45,7 @@ class branchRegisterTransaction extends transaction{
 
 
         // 返回新申请的分店账号
-        return newBranchAccount;
+        return this.packageResult(true,newBranchAccount,"注册成功");
 
     }
 }

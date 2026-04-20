@@ -40,7 +40,7 @@ class customerRegisterTransaction extends transaction{
         transaction.getManager(customerAccountManager)
             .addOneNewAccount(newCustomerAccount);       
         
-        return newCustomerAccount;
+        return this.packageResult(true,newCustomerAccount,"注册成功");
     }
 }
 

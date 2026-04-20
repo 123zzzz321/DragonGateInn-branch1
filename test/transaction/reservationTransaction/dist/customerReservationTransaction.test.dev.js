@@ -20,9 +20,9 @@ var _require = require('../../../branchResource/reservation/reservation'),
 describe('顾客的预订房间事务', function () {
   it('顾客的预订房间事务的执行', function () {
     var newCustomerRegisterTransaction = new customerRegisterTransaction();
-    var customerId = newCustomerRegisterTransaction.execute('138000000000', '123456').getID();
+    var customerId = newCustomerRegisterTransaction.execute('138000000000', '123456').resultContent.getID();
     var newBranchRegisterTransaction = new branchRegisterTransaction();
-    var branchId = newBranchRegisterTransaction.execute().getID();
+    var branchId = newBranchRegisterTransaction.execute().resultContent.getID();
     var newCustomerReservateTransaction = new customerReservateTransaction();
     var reservation = newCustomerReservateTransaction.execute(customerId, branchId, {
       area: 100,
@@ -37,9 +37,9 @@ describe('顾客的预订房间事务', function () {
   it('顾客的取消房间事务的执行', function () {
     // 注册顾客和分店
     var newCustomerRegisterTransaction = new customerRegisterTransaction();
-    var customerId = newCustomerRegisterTransaction.execute('138100000000', '123456').getID();
+    var customerId = newCustomerRegisterTransaction.execute('138100000000', '123456').resultContent.getID();
     var newBranchRegisterTransaction = new branchRegisterTransaction();
-    var branchId = newBranchRegisterTransaction.execute().getID(); //创建预约订单
+    var branchId = newBranchRegisterTransaction.execute().resultContent.getID(); //创建预约订单
 
     var newCustomerReservateTransaction = new customerReservateTransaction();
     var reservation = newCustomerReservateTransaction.execute(customerId, branchId, {
@@ -59,9 +59,9 @@ describe('顾客的预订房间事务', function () {
   it('确认预约订单事务的执行', function () {
     // 注册顾客和分店
     var newCustomerRegisterTransaction = new customerRegisterTransaction();
-    var customerId = newCustomerRegisterTransaction.execute('138200000000', '123456').getID();
+    var customerId = newCustomerRegisterTransaction.execute('138200000000', '123456').resultContent.getID();
     var newBranchRegisterTransaction = new branchRegisterTransaction();
-    var branchId = newBranchRegisterTransaction.execute().getID(); //创建预约订单
+    var branchId = newBranchRegisterTransaction.execute().resultContent.getID(); //创建预约订单
 
     var newCustomerReservateTransaction = new customerReservateTransaction();
     var reservation = newCustomerReservateTransaction.execute(customerId, branchId, {

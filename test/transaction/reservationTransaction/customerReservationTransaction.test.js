@@ -12,10 +12,10 @@ const {reservationState}=require('../../../branchResource/reservation/reservatio
 describe('顾客的预订房间事务',()=>{
     it('顾客的预订房间事务的执行',()=>{
         let newCustomerRegisterTransaction=new customerRegisterTransaction();
-        const customerId=newCustomerRegisterTransaction.execute('138000000000','123456').getID();
+        const customerId=newCustomerRegisterTransaction.execute('138000000000','123456').resultContent.getID();
 
         let newBranchRegisterTransaction=new branchRegisterTransaction();
-        const branchId=newBranchRegisterTransaction.execute().getID();
+        const branchId=newBranchRegisterTransaction.execute().resultContent.getID();
 
         let newCustomerReservateTransaction=new customerReservateTransaction();
         const reservation=newCustomerReservateTransaction.execute(customerId,branchId,
@@ -28,10 +28,10 @@ describe('顾客的预订房间事务',()=>{
     it('顾客的取消房间事务的执行',()=>{
         // 注册顾客和分店
         let newCustomerRegisterTransaction=new customerRegisterTransaction();
-        const customerId=newCustomerRegisterTransaction.execute('138100000000','123456').getID();
+        const customerId=newCustomerRegisterTransaction.execute('138100000000','123456').resultContent.getID();
 
         let newBranchRegisterTransaction=new branchRegisterTransaction();
-        const branchId=newBranchRegisterTransaction.execute().getID();
+        const branchId=newBranchRegisterTransaction.execute().resultContent.getID();
 
         //创建预约订单
         let newCustomerReservateTransaction=new customerReservateTransaction();
@@ -50,10 +50,10 @@ describe('顾客的预订房间事务',()=>{
      it('确认预约订单事务的执行',()=>{
         // 注册顾客和分店
         let newCustomerRegisterTransaction=new customerRegisterTransaction();
-        const customerId=newCustomerRegisterTransaction.execute('138200000000','123456').getID();
+        const customerId=newCustomerRegisterTransaction.execute('138200000000','123456').resultContent.getID();
 
         let newBranchRegisterTransaction=new branchRegisterTransaction();
-        const branchId=newBranchRegisterTransaction.execute().getID();
+        const branchId=newBranchRegisterTransaction.execute().resultContent.getID();
 
         //创建预约订单
         let newCustomerReservateTransaction=new customerReservateTransaction();

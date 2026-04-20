@@ -78,7 +78,7 @@ function (_transaction) {
 
       var newCustomerAccount = new customerAccount(transaction.getManager(accountApplication).getRandomAccount(), password, phoneString);
       transaction.getManager(customerAccountManager).addOneNewAccount(newCustomerAccount);
-      return newCustomerAccount;
+      return this.packageResult(true, newCustomerAccount, "注册成功");
     }
   }]);
 

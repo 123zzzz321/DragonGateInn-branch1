@@ -17,7 +17,7 @@ var customerAccountManager = require('../../../../accountManager/customerAccount
 describe('停用账号事务', function () {
   it('停用分点账号', function () {
     var curBranchRegisterTransaction = new branchRegisterTransaction();
-    var branchAccount = curBranchRegisterTransaction.execute();
+    var branchAccount = curBranchRegisterTransaction.execute().resultContent;
     var curDeactivateAccountTransaction = new deactivateBranchTransaction();
     curDeactivateAccountTransaction.execute(branchAccount.getID());
     expect(transaction.getManager(branchAccountManager).getActiveAccountList().includes(branchAccount)).toBe(false);

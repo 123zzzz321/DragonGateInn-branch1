@@ -14,7 +14,7 @@ const customerAccountManager=require('../../../../accountManager/customerAccount
 describe('停用账号事务',()=>{
     it('停用分点账号',()=>{
         const curBranchRegisterTransaction=new branchRegisterTransaction();
-        const branchAccount=curBranchRegisterTransaction.execute();
+        const branchAccount=curBranchRegisterTransaction.execute().resultContent;
 
 
         const curDeactivateAccountTransaction=new deactivateBranchTransaction();

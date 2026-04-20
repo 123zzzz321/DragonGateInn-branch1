@@ -12,6 +12,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -86,14 +90,22 @@ function (_transaction) {
   }, {
     key: "execute",
     value: function execute() {
-      assert(arguments.length >= 3, 'args.length less than 3');
-      var branchId = arguments.length <= 0 ? undefined : arguments[0];
-      var roomId = arguments.length <= 1 ? undefined : arguments[1];
-      var persons = arguments.length <= 2 ? undefined : arguments[2];
+      var _get2;
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      (_get2 = _get(_getPrototypeOf(createCheckInTransaction.prototype), "execute", this)).call.apply(_get2, [this].concat(args));
+
+      assert(args.length >= 3, 'args.length less than 3');
+      var branchId = args[0];
+      var roomId = args[1];
+      var persons = args[2];
       var connectReservationId = null;
 
-      if (arguments.length >= 4) {
-        connectReservationId = arguments.length <= 3 ? undefined : arguments[3];
+      if (args.length >= 4) {
+        connectReservationId = args[3];
       }
 
       if (!this.isBranchExist(branchId)) {

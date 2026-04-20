@@ -27,7 +27,7 @@ class headquarterRegisterTransaction extends transaction{
             .addOneNewAccount(
                 newHeadquarterAccount);
 
-        return newHeadquarterAccount;
+        return this.packageResult(true, newHeadquarterAccount, "注册成功");
     }
 }
 module.exports=headquarterRegisterTransaction;

@@ -1,20 +1,25 @@
 {
   "name": "dragongateinn",
   "version": "1.0.0",
-  "description": "",
+  "description": "Dragon Gate Inn Hotel Management System",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "cd frontend && npm run build"
   },
-  "keywords": [],
+  "keywords": ["hotel", "management", "system"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1",
-    "oracledb": "^5.5.0"
+    "oracledb": "^5.5.0",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
-    "jest": "^30.3.0"
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.0"
   }
 }
