@@ -1,0 +1,180 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(31, 143, 99, 0.14), transparent 34%),
+    linear-gradient(180deg, #f4f7f2 0%, #edf2eb 100%);
+  color: #162418;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: transparent;
+}
+
+.loading-container,
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.loading-container {
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  border-radius: 24px;
+  border: 1px solid rgba(16, 24, 40, 0.06);
+  box-shadow: 0 24px 80px rgba(13, 31, 18, 0.12);
+}
+
+.auth-shell {
+  background:
+    linear-gradient(130deg, rgba(31, 143, 99, 0.16), rgba(8, 74, 53, 0.04)),
+    radial-gradient(circle at 80% 10%, rgba(250, 214, 91, 0.28), transparent 24%);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 12px;
+  color: #1f8f63;
+  font-weight: 700;
+}
+
+.auth-footer {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  height: auto;
+  line-height: 1.4;
+  background: rgba(248, 251, 247, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(16, 24, 40, 0.06);
+}
+
+.app-brand,
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.app-sider {
+  border-right: 1px solid rgba(16, 24, 40, 0.06);
+  background: rgba(248, 251, 247, 0.78);
+}
+
+.app-content {
+  padding: 24px;
+}
+
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.soft-card,
+.room-card {
+  border-radius: 22px;
+  border: 1px solid rgba(16, 24, 40, 0.06);
+  box-shadow: 0 14px 40px rgba(14, 31, 20, 0.08);
+}
+
+.room-cover {
+  height: 120px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #1f8f63 0%, #0f5b40 100%);
+  color: white;
+  font-size: 36px;
+}
+
+.room-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.unit-text {
+  font-size: 14px;
+  color: #667085;
+}
+
+.cta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f8faf7;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 991px) {
+  .app-content {
+    padding: 16px;
+  }
+
+  .app-header {
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-user {
+    justify-content: space-between;
+  }
+}
