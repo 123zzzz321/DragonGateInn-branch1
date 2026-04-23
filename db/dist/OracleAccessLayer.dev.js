@@ -132,6 +132,33 @@ function (_DatabaseAccessLayer) {
       }, null, this, [[0, 10]]);
     }
     /**
+     * 检查并确保数据库连接
+     * @returns {Promise} 连接结果
+     */
+
+  }, {
+    key: "ensureConnection",
+    value: function ensureConnection() {
+      return regeneratorRuntime.async(function ensureConnection$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              if (this.connection) {
+                _context3.next = 3;
+                break;
+              }
+
+              _context3.next = 3;
+              return regeneratorRuntime.awrap(this.connect());
+
+            case 3:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, null, this);
+    }
+    /**
      * 从表中读取所有列信息（包括列名和类型）
      * @param {string} tableName - 表名
      * @returns {Promise<Array>} 列信息数组
@@ -141,38 +168,42 @@ function (_DatabaseAccessLayer) {
     key: "getTableColumnInfos",
     value: function getTableColumnInfos(tableName) {
       var result;
-      return regeneratorRuntime.async(function getTableColumnInfos$(_context3) {
+      return regeneratorRuntime.async(function getTableColumnInfos$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
-              _context3.prev = 0;
+              _context4.prev = 0;
+              _context4.next = 3;
+              return regeneratorRuntime.awrap(this.ensureConnection());
+
+            case 3:
               console.log("\u83B7\u53D6\u8868".concat(tableName, "\u7684\u6240\u6709\u5217\u4FE1\u606F"));
-              _context3.next = 4;
+              _context4.next = 6;
               return regeneratorRuntime.awrap(this.connection.execute("SELECT column_name, data_type \n                 FROM user_tab_columns \n                 WHERE table_name = UPPER(:tableName)", {
                 tableName: tableName
               }));
 
-            case 4:
-              result = _context3.sent;
-              return _context3.abrupt("return", result.rows.map(function (row) {
+            case 6:
+              result = _context4.sent;
+              return _context4.abrupt("return", result.rows.map(function (row) {
                 return {
                   name: row[0],
                   type: row[1]
                 };
               }));
 
-            case 8:
-              _context3.prev = 8;
-              _context3.t0 = _context3["catch"](0);
-              console.error('获取表列信息失败:', _context3.t0);
-              throw _context3.t0;
+            case 10:
+              _context4.prev = 10;
+              _context4.t0 = _context4["catch"](0);
+              console.error('获取表列信息失败:', _context4.t0);
+              throw _context4.t0;
 
-            case 12:
+            case 14:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
         }
-      }, null, this, [[0, 8]]);
+      }, null, this, [[0, 10]]);
     }
     /**
      * 从表中读取所有行数据
@@ -184,33 +215,35 @@ function (_DatabaseAccessLayer) {
     key: "getTableAllRows",
     value: function getTableAllRows(tableName) {
       var result;
-      return regeneratorRuntime.async(function getTableAllRows$(_context4) {
+      return regeneratorRuntime.async(function getTableAllRows$(_context5) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context5.prev = _context5.next) {
             case 0:
-              _context4.prev = 0;
+              _context5.prev = 0;
+              _context5.next = 3;
+              return regeneratorRuntime.awrap(this.ensureConnection());
+
+            case 3:
               console.log("\u83B7\u53D6\u8868".concat(tableName, "\u7684\u6240\u6709\u884C\u6570\u636E"));
-              _context4.next = 4;
-              return regeneratorRuntime.awrap(this.connection.execute("SELECT * FROM ".concat(tableName), {
-                tableName: tableName
-              }));
+              _context5.next = 6;
+              return regeneratorRuntime.awrap(this.connection.execute("SELECT * FROM ".concat(tableName)));
 
-            case 4:
-              result = _context4.sent;
-              return _context4.abrupt("return", result.rows);
+            case 6:
+              result = _context5.sent;
+              return _context5.abrupt("return", result.rows);
 
-            case 8:
-              _context4.prev = 8;
-              _context4.t0 = _context4["catch"](0);
-              console.error('获取表行数据失败:', _context4.t0);
-              throw _context4.t0;
+            case 10:
+              _context5.prev = 10;
+              _context5.t0 = _context5["catch"](0);
+              console.error('获取表行数据失败:', _context5.t0);
+              throw _context5.t0;
 
-            case 12:
+            case 14:
             case "end":
-              return _context4.stop();
+              return _context5.stop();
           }
         }
-      }, null, this, [[0, 8]]);
+      }, null, this, [[0, 10]]);
     }
     /**
      * 向表中写入数据
@@ -223,11 +256,15 @@ function (_DatabaseAccessLayer) {
     key: "insertData",
     value: function insertData(tableName, data) {
       var columns, placeholders, sql, result;
-      return regeneratorRuntime.async(function insertData$(_context5) {
+      return regeneratorRuntime.async(function insertData$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              _context5.prev = 0;
+              _context6.prev = 0;
+              _context6.next = 3;
+              return regeneratorRuntime.awrap(this.ensureConnection());
+
+            case 3:
               console.log("\u5411\u8868".concat(tableName, "\u63D2\u5165\u6570\u636E:"), data); // 构建INSERT语句
 
               columns = Object.keys(data);
@@ -235,27 +272,27 @@ function (_DatabaseAccessLayer) {
                 return ":".concat(index + 1);
               });
               sql = "INSERT INTO ".concat(tableName, " (").concat(columns.join(', '), ") \n                        VALUES (").concat(placeholders.join(', '), ")");
-              _context5.next = 7;
+              _context6.next = 9;
               return regeneratorRuntime.awrap(this.connection.execute(sql, Object.values(data), {
                 autoCommit: true
               }));
 
-            case 7:
-              result = _context5.sent;
-              return _context5.abrupt("return", result.rowsAffected || 1);
+            case 9:
+              result = _context6.sent;
+              return _context6.abrupt("return", result.rowsAffected || 1);
 
-            case 11:
-              _context5.prev = 11;
-              _context5.t0 = _context5["catch"](0);
-              console.error('插入数据失败:', _context5.t0);
-              throw _context5.t0;
+            case 13:
+              _context6.prev = 13;
+              _context6.t0 = _context6["catch"](0);
+              console.error('插入数据失败:', _context6.t0);
+              throw _context6.t0;
 
-            case 15:
+            case 17:
             case "end":
-              return _context5.stop();
+              return _context6.stop();
           }
         }
-      }, null, this, [[0, 11]]);
+      }, null, this, [[0, 13]]);
     }
     /**
      * 构建UPDATE语句的SET子句
@@ -291,34 +328,127 @@ function (_DatabaseAccessLayer) {
     key: "updateData",
     value: function updateData(tableName, data, condition) {
       var sql, result;
-      return regeneratorRuntime.async(function updateData$(_context6) {
+      return regeneratorRuntime.async(function updateData$(_context7) {
         while (1) {
-          switch (_context6.prev = _context6.next) {
+          switch (_context7.prev = _context7.next) {
             case 0:
-              _context6.prev = 0;
+              _context7.prev = 0;
+              _context7.next = 3;
+              return regeneratorRuntime.awrap(this.ensureConnection());
+
+            case 3:
               console.log("\u66F4\u65B0\u8868".concat(tableName, "\u7684\u6570\u636E:"), data, '条件:', condition);
               sql = "UPDATE ".concat(tableName, " \n                        SET ").concat(this.createUpdateClause(data, condition).setClause, " \n                        WHERE ").concat(this.createUpdateClause(data, condition).whereClause);
-              _context6.next = 5;
+              _context7.next = 7;
               return regeneratorRuntime.awrap(this.connection.execute(sql, [].concat(_toConsumableArray(Object.values(data)), _toConsumableArray(Object.values(condition))), {
                 autoCommit: true
               }));
 
-            case 5:
-              result = _context6.sent;
-              return _context6.abrupt("return", result.rowsAffected || 0);
+            case 7:
+              result = _context7.sent;
+              return _context7.abrupt("return", result.rowsAffected || 0);
 
-            case 9:
-              _context6.prev = 9;
-              _context6.t0 = _context6["catch"](0);
-              console.error('更新数据失败:', _context6.t0);
-              throw _context6.t0;
+            case 11:
+              _context7.prev = 11;
+              _context7.t0 = _context7["catch"](0);
+              console.error('更新数据失败:', _context7.t0);
+              throw _context7.t0;
 
-            case 13:
+            case 15:
             case "end":
-              return _context6.stop();
+              return _context7.stop();
           }
         }
-      }, null, this, [[0, 9]]);
+      }, null, this, [[0, 11]]);
+    }
+    /**
+    * 删除表中的数据
+    * @param {string} tableName - 表名
+    * @param {Object} condition - 条件
+    * @returns {Promise<number>} 影响的行数
+    */
+
+  }, {
+    key: "deleteData",
+    value: function deleteData(tableName, condition) {
+      var sql, result;
+      return regeneratorRuntime.async(function deleteData$(_context8) {
+        while (1) {
+          switch (_context8.prev = _context8.next) {
+            case 0:
+              _context8.prev = 0;
+              _context8.next = 3;
+              return regeneratorRuntime.awrap(this.ensureConnection());
+
+            case 3:
+              console.log("\u5220\u9664\u8868".concat(tableName, "\u7684\u6570\u636E:"), condition);
+              sql = "DELETE FROM ".concat(tableName, " \n            WHERE ").concat(this.createUpdateClause({}, condition).whereClause);
+              _context8.next = 7;
+              return regeneratorRuntime.awrap(this.connection.execute(sql, Object.values(condition), {
+                autoCommit: true
+              }));
+
+            case 7:
+              result = _context8.sent;
+              return _context8.abrupt("return", result.rowsAffected || 0);
+
+            case 11:
+              _context8.prev = 11;
+              _context8.t0 = _context8["catch"](0);
+              console.error('删除数据失败:', _context8.t0);
+              throw _context8.t0;
+
+            case 15:
+            case "end":
+              return _context8.stop();
+          }
+        }
+      }, null, this, [[0, 11]]);
+    }
+    /**
+     * 创建表
+     * @param {string} tableName - 表名
+     * @param {Array} columns - 列信息数组
+     * @returns {Promise} 创建结果
+     */
+
+  }, {
+    key: "createTable",
+    value: function createTable(tableName, columns) {
+      var sql;
+      return regeneratorRuntime.async(function createTable$(_context9) {
+        while (1) {
+          switch (_context9.prev = _context9.next) {
+            case 0:
+              _context9.prev = 0;
+              _context9.next = 3;
+              return regeneratorRuntime.awrap(this.ensureConnection());
+
+            case 3:
+              console.log("\u521B\u5EFA\u8868".concat(tableName, "\uFF0C\u5217\u4FE1\u606F:"), columns);
+              sql = "CREATE TABLE ".concat(tableName, " (").concat(columns.map(function (col) {
+                return "".concat(col.name, " ").concat(col.type);
+              }).join(', '), ")");
+              _context9.next = 7;
+              return regeneratorRuntime.awrap(this.connection.execute(sql, {
+                autoCommit: true
+              }));
+
+            case 7:
+              return _context9.abrupt("return", true);
+
+            case 10:
+              _context9.prev = 10;
+              _context9.t0 = _context9["catch"](0);
+              console.error('创建表失败:', _context9.t0);
+              throw _context9.t0;
+
+            case 14:
+            case "end":
+              return _context9.stop();
+          }
+        }
+      }, null, this, [[0, 10]]);
     }
   }]);
 

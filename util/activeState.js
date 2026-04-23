@@ -11,7 +11,7 @@ class activeState{
         return this.activeBool;
     }
 
-    setActive(){
+    setEnable(){
         this.activeBool=true;
     }
 

@@ -63,6 +63,35 @@ class DatabaseAccessLayer {
     async updateData(tableName, data, condition) {
         throw new Error('子类必须实现updateData方法');
     }
+
+    /**
+     * 删除表中的数据
+     * @param {string} tableName - 表名
+     * @param {Object} condition - 条件
+     * @returns {Promise<number>} 影响的行数
+     */
+    async deleteData(tableName, condition) {
+        throw new Error('子类必须实现deleteData方法');
+    }
+
+    /**
+     * 创建表
+     * @param {string} tableName - 表名
+     * @param {Array} columns - 列信息数组
+     * @returns {Promise} 创建结果
+     */
+    async createTable(tableName, columns) {
+        throw new Error('子类必须实现createTable方法');
+    }
+
+    /**
+     * 用SQL语句创建表
+     * @param {string} sql - 创建表的SQL语句
+     * @returns {Promise} 创建结果
+     */
+    async createTableBySQL(sql){
+        throw new Error('子类必须实现createTableBySQL方法');
+    }
 }
 
 module.exports = DatabaseAccessLayer;

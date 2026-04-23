@@ -85,7 +85,7 @@ function () {
      * 预约订单的编号
      */
     this.reservationIdString = reservationIdString;
-    this.createReservationData = new Date();
+    this.createReservationDate = new Date();
     /**
      * 预约订单的状态,创建预约之后，默认就是pending
      */
@@ -157,6 +157,11 @@ function () {
     key: "getRoomLayout",
     value: function getRoomLayout() {
       return this.roomLayout;
+    }
+  }, {
+    key: "getcreateReservationDate",
+    value: function getcreateReservationDate() {
+      return this.createReservationDate;
     }
     /**
      * 设置预约订单的顾客的编号，分店的编号，房间布局

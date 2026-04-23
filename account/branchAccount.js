@@ -8,7 +8,7 @@ const account = require('./account.js');
  class branchAccount extends account{
     constructor(username,password){
         super(username,password);
-        this.nameString='分点名称';
+
     }
  
 }

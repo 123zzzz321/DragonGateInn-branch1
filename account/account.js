@@ -18,6 +18,10 @@ class account{
     
 
     //-------------账户状态相关方法-------------
+    getActiveState(){
+        return this.activeState;
+    }
+
     //查看账户被禁用的状态
     getActiveBool(){
         return this.activeState.getActiveBool();

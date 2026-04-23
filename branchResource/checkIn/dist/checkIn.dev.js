@@ -121,6 +121,11 @@ function () {
     value: function getPerson() {
       return this.personList;
     }
+  }, {
+    key: "getReservationId",
+    value: function getReservationId() {
+      return this.reservationId;
+    }
     /**
      * 入住人员的消费记录在其入住记录上
      */

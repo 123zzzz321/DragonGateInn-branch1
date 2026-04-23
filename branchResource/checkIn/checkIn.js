@@ -18,6 +18,8 @@ class person{
     }
 }
 
+const randomCheckInIdGenerator=new randomGenerator();
+
 /**
  * 入住类
  */
@@ -29,6 +31,8 @@ class checkIn{
          * 入住订单的编号,可以为空，表示这个顾客没有预约直接到酒店里入住
          */
         this.reservationId=null;
+        //如果从数据库中读取数据的入住订单的编号，就占用这个编号
+        randomCheckInIdGenerator.occupyId(this.Id);
 
         /**
          * 入住订单所属的店的编号
@@ -98,6 +102,10 @@ class checkIn{
         return this.personList;
     }
 
+    getReservationId(){
+        return this.reservationId;
+    }
+
     /**
      * 入住人员的消费记录在其入住记录上
      */
@@ -129,7 +137,7 @@ class checkIn{
     }
 }
 
-const randomCheckInIdGenerator=new randomGenerator();
+
 
 /**
  * 入住订单的工厂函数

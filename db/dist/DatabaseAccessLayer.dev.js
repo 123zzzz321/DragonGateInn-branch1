@@ -154,6 +154,52 @@ function () {
         }
       });
     }
+    /**
+     * 删除表中的数据
+     * @param {string} tableName - 表名
+     * @param {Object} condition - 条件
+     * @returns {Promise<number>} 影响的行数
+     */
+
+  }, {
+    key: "deleteData",
+    value: function deleteData(tableName, condition) {
+      return regeneratorRuntime.async(function deleteData$(_context7) {
+        while (1) {
+          switch (_context7.prev = _context7.next) {
+            case 0:
+              throw new Error('子类必须实现deleteData方法');
+
+            case 1:
+            case "end":
+              return _context7.stop();
+          }
+        }
+      });
+    }
+    /**
+     * 创建表
+     * @param {string} tableName - 表名
+     * @param {Array} columns - 列信息数组
+     * @returns {Promise} 创建结果
+     */
+
+  }, {
+    key: "createTable",
+    value: function createTable(tableName, columns) {
+      return regeneratorRuntime.async(function createTable$(_context8) {
+        while (1) {
+          switch (_context8.prev = _context8.next) {
+            case 0:
+              throw new Error('子类必须实现createTable方法');
+
+            case 1:
+            case "end":
+              return _context8.stop();
+          }
+        }
+      });
+    }
   }]);
 
   return DatabaseAccessLayer;
