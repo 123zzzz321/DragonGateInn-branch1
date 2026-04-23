@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BankOutlined } from '@ant-design/icons';
-import { Button, Card, Col, DatePicker, Empty, Form, Modal, Row, Select, Space, Tag, Typography, message } from 'antd';
+import { BankOutlined, ExpandOutlined, HomeOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Col, DatePicker, Descriptions, Empty, Form, Modal, Row, Select, Space, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { createReservation, getAllBranches, getAvailableRooms } from '../../services/customerService';
 import { formatCurrency, formatRoomType } from '../../utils/formatters';
@@ -13,15 +13,21 @@ function CustomerBrowseRooms() {
   const [rooms, setRooms] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState();
   const [loading, setLoading] = useState(false);
+  const [branchLoading, setBranchLoading] = useState(true);
   const [bookingRoom, setBookingRoom] = useState(null);
+  const [detailRoom, setDetailRoom] = useState(null);
   const [form] = Form.useForm();
+  const { message } = AntdApp.useApp();
 
   useEffect(() => {
     const fetchBranches = async () => {
+      setBranchLoading(true);
       try {
         setBranches(await getAllBranches());
       } catch (error) {
         message.error(error.message);
+      } finally {
+        setBranchLoading(false);
       }
     };
 
@@ -79,6 +85,7 @@ function CustomerBrowseRooms() {
           style={{ minWidth: 260 }}
           value={selectedBranch}
           onChange={handleBranchChange}
+          loading={branchLoading}
           options={branches.map((branch) => ({
             label: `${branch.branchName} · ${branch.address}`,
             value: branch.branchId,
@@ -88,7 +95,16 @@ function CustomerBrowseRooms() {
 
       {!selectedBranch ? (
         <Card className="soft-card">
-          <Empty description="请选择一个分店开始浏览房间" />
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <span>
+                请选择一个分店开始浏览房间
+                <br />
+                {branches.length === 0 && !branchLoading && <Text type="secondary">暂无可用分店</Text>}
+              </span>
+            }
+          />
         </Card>
       ) : rooms.length ? (
         <Row gutter={[16, 16]}>
@@ -111,9 +127,14 @@ function CustomerBrowseRooms() {
                     {formatCurrency(room.price)}
                     <span className="unit-text"> / 晚</span>
                   </Title>
-                  <Button type="primary" block onClick={() => setBookingRoom(room)}>
-                    预订这间房
-                  </Button>
+                  <Space style={{ width: '100%' }} direction="vertical" size={8}>
+                    <Button block onClick={() => setDetailRoom(room)}>
+                      查看详情
+                    </Button>
+                    <Button type="primary" block onClick={() => setBookingRoom(room)}>
+                      预订这间房
+                    </Button>
+                  </Space>
                 </Space>
               </Card>
             </Col>
@@ -121,7 +142,16 @@ function CustomerBrowseRooms() {
         </Row>
       ) : (
         <Card className="soft-card" loading={loading}>
-          <Empty description="该分店当前没有可预订房间" />
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <span>
+                该分店当前没有可预订房间
+                <br />
+                <Text type="secondary">请尝试选择其他分店或稍后再试</Text>
+              </span>
+            }
+          />
         </Card>
       )}
 
@@ -157,6 +187,54 @@ function CustomerBrowseRooms() {
             </Button>
           </Form>
         ) : null}
+      </Modal>
+
+      <Modal
+        title={detailRoom ? `房间 ${detailRoom.roomId} 详情` : '房间详情'}
+        open={Boolean(detailRoom)}
+        onCancel={() => setDetailRoom(null)}
+        footer={[
+          <Button key="close" onClick={() => setDetailRoom(null)}>
+            关闭
+          </Button>,
+          detailRoom && (
+            <Button key="book" type="primary" onClick={() => { setDetailRoom(null); setBookingRoom(detailRoom); }}>
+              立即预订
+            </Button>
+          ),
+        ]}
+      >
+        {detailRoom && selectedBranchInfo && (
+          <Descriptions bordered column={1} size="small">
+            <Descriptions.Item label="房间号">{detailRoom.roomId}</Descriptions.Item>
+            <Descriptions.Item label="所属分店">{selectedBranchInfo.branchName}</Descriptions.Item>
+            <Descriptions.Item label="地址">{selectedBranchInfo.address}</Descriptions.Item>
+            <Descriptions.Item label="房型">{formatRoomType(detailRoom.roomType)}</Descriptions.Item>
+            <Descriptions.Item label="面积">
+              <Space>
+                <ExpandOutlined />
+                {detailRoom.roomType?.area || '-'} ㎡
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label="床型">{detailRoom.roomType?.bedType?.typeString || '-'}</Descriptions.Item>
+            <Descriptions.Item label="床位数量">{detailRoom.roomType?.bedType?.numInt || '-'} 人</Descriptions.Item>
+            <Descriptions.Item label="窗户">
+              <Space>
+                <HomeOutlined />
+                {detailRoom.roomType?.windowBool ? '有窗' : '无窗'}
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label="房间状态">
+              <Tag color="green">可预订</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="价格">
+              <Text strong style={{ fontSize: 18, color: '#1f8f63' }}>
+                {formatCurrency(detailRoom.price)}
+              </Text>
+              <Text type="secondary"> / 晚</Text>
+            </Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </div>
   );

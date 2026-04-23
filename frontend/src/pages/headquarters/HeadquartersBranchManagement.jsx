@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Empty, Form, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import { createBranch, deleteBranch, getAllBranches, updateBranch } from '../../services/headquartersService';
 
 const { Title, Paragraph } = Typography;
@@ -10,6 +11,7 @@ function HeadquartersBranchManagement() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState(null);
   const [form] = Form.useForm();
+  const { message, modal } = AntdApp.useApp();
 
   const fetchBranches = async () => {
     setLoading(true);
@@ -43,6 +45,26 @@ function HeadquartersBranchManagement() {
     }
   };
 
+  const handleDelete = (branch) => {
+    modal.confirm({
+      title: '确认停用分店',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要停用分店 "${branch.branchName}" 吗？停用后客户将无法预订该分店的房间。`,
+      okText: '确认停用',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await deleteBranch(branch.branchId);
+          message.success('分店已停用');
+          fetchBranches();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
+  };
+
   const columns = [
     { title: '分店 ID', dataIndex: 'branchId', key: 'branchId' },
     { title: '名称', dataIndex: 'branchName', key: 'branchName' },
@@ -69,7 +91,7 @@ function HeadquartersBranchManagement() {
           >
             编辑
           </Button>
-          <Button type="link" danger onClick={() => deleteBranch(record.branchId).then(fetchBranches)}>
+          <Button type="link" danger onClick={() => handleDelete(record)}>
             停用
           </Button>
         </div>
@@ -98,7 +120,11 @@ function HeadquartersBranchManagement() {
       </div>
 
       <Card className="soft-card">
-        <Table rowKey="branchId" columns={columns} dataSource={branches} loading={loading} />
+        {branches.length > 0 ? (
+          <Table rowKey="branchId" columns={columns} dataSource={branches} loading={loading} />
+        ) : (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分店数据，请添加新的分店" />
+        )}
       </Card>
 
       <Modal

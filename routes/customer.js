@@ -9,6 +9,7 @@ const {
   rooms,
   checkIns,
   getRoomById,
+  users,
 } = require('./mockData');
 
 const router = express.Router();
@@ -34,6 +35,63 @@ router.get('/dashboard', (req, res) => {
     recentReservations: customerReservations.slice(-5).reverse(),
     upcomingReservations: customerReservations.filter((item) => item.status !== 'canceled').slice(-5).reverse(),
   });
+});
+
+router.get('/profile', (req, res) => {
+  const user = requireUser(req, res, 'customer');
+  if (!user) {
+    return;
+  }
+
+  res.json({
+    customerId: user.customerId,
+    username: user.username,
+    email: user.email || '',
+    phone: user.customerPhone || '',
+    realName: user.customerName || '',
+    idCard: user.customerIdCard || '',
+    memberLevel: '普通会员',
+    status: user.status || 'active',
+  });
+});
+
+router.put('/profile', (req, res) => {
+  const user = requireUser(req, res, 'customer');
+  if (!user) {
+    return;
+  }
+
+  const { email, phone, realName } = req.body;
+
+  if (email) {
+    user.email = email;
+  }
+
+  if (phone) {
+    user.customerPhone = phone;
+  }
+
+  if (realName) {
+    user.customerName = realName;
+  }
+
+  res.json({ success: true, message: '个人信息更新成功' });
+});
+
+router.put('/password', (req, res) => {
+  const user = requireUser(req, res, 'customer');
+  if (!user) {
+    return;
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  if (user.password !== currentPassword) {
+    return res.status(400).json({ message: '当前密码错误' });
+  }
+
+  user.password = newPassword;
+  res.json({ success: true, message: '密码修改成功' });
 });
 
 router.get('/branches', (_req, res) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Select, Typography, Divider, message } from 'antd';
+import { App as AntdApp, Card, Form, Input, Button, Select, Typography, Divider } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/authService';
 
@@ -9,13 +9,13 @@ const { Title, Text } = Typography;
 function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [messageApi, contextHolder] = message.useMessage();
+  const { message } = AntdApp.useApp();
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
       const user = await login(values.username, values.password, values.accountType);
-      messageApi.success('登录成功');
+      message.success('登录成功');
       
       // 根据用户类型跳转到相应页面
       if (user.accountType === 'customer') {
@@ -26,7 +26,7 @@ function Login() {
         navigate('/headquarters/dashboard');
       }
     } catch (error) {
-      messageApi.error('登录失败：' + error.message);
+      message.error('登录失败：' + error.message);
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,6 @@ function Login() {
 
   return (
     <div className="login-container">
-      {contextHolder}
       <Card className="login-card" title={<Title level={4}>欢迎登录 Dragon Gate Inn</Title>}>
         <Form
           layout="vertical"

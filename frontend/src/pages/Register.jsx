@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Card, Form, Input, Progress, Select, Space, Typography, message } from 'antd';
+import { App as AntdApp, Button, Card, Form, Input, Progress, Select, Space, Typography } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../services/authService';
 
@@ -23,6 +23,7 @@ function Register() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const { message } = AntdApp.useApp();
 
   const onFinish = async (values) => {
     setLoading(true);

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Select, Table, Tag, Typography, message } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Select, Table, Tag, Typography } from 'antd';
 import { cancelReservation, confirmReservation, getReservations } from '../../services/reservationService';
 import {
   formatDate,
@@ -14,6 +15,7 @@ function BranchReservationManagement() {
   const [reservations, setReservations] = useState([]);
   const [status, setStatus] = useState();
   const [loading, setLoading] = useState(false);
+  const { message, modal } = AntdApp.useApp();
 
   const fetchReservations = async () => {
     setLoading(true);
@@ -30,24 +32,43 @@ function BranchReservationManagement() {
     fetchReservations();
   }, [status]);
 
-  const handleConfirm = async (reservationId) => {
-    try {
-      await confirmReservation(reservationId);
-      message.success('预订已确认');
-      fetchReservations();
-    } catch (error) {
-      message.error(error.message);
-    }
+  const handleConfirm = (reservation) => {
+    modal.confirm({
+      title: '确认预订',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要确认客户 ${reservation.customerName} 的预订吗？房间 ${reservation.roomId} 将为其保留。`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await confirmReservation(reservation.reservationId);
+          message.success('预订已确认');
+          fetchReservations();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
   };
 
-  const handleCancel = async (reservationId) => {
-    try {
-      await cancelReservation(reservationId);
-      message.success('预订已取消');
-      fetchReservations();
-    } catch (error) {
-      message.error(error.message);
-    }
+  const handleCancel = (reservation) => {
+    modal.confirm({
+      title: '取消预订',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要取消客户 ${reservation.customerName} 的预订吗？此操作不可恢复。`,
+      okText: '确认取消',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await cancelReservation(reservation.reservationId);
+          message.success('预订已取消');
+          fetchReservations();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
   };
 
   const columns = [
@@ -69,10 +90,10 @@ function BranchReservationManagement() {
       render: (_, record) =>
         record.status === 'pending' ? (
           <div className="table-actions">
-            <Button type="link" onClick={() => handleConfirm(record.reservationId)}>
+            <Button type="link" onClick={() => handleConfirm(record)}>
               确认
             </Button>
-            <Button type="link" danger onClick={() => handleCancel(record.reservationId)}>
+            <Button type="link" danger onClick={() => handleCancel(record)}>
               取消
             </Button>
           </div>

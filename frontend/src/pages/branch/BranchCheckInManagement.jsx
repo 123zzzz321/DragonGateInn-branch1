@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Descriptions, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography, message } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Descriptions, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import { addConsumption, checkOut, createCheckIn, getCheckIns } from '../../services/checkInService';
 import { getRooms } from '../../services/roomService';
 import { formatCurrency, formatDateTime, getCheckInStatusText } from '../../utils/formatters';
@@ -15,6 +16,7 @@ function BranchCheckInManagement() {
   const [consumptionRecord, setConsumptionRecord] = useState(null);
   const [checkInForm] = Form.useForm();
   const [consumptionForm] = Form.useForm();
+  const { message, modal } = AntdApp.useApp();
 
   const fetchData = async () => {
     setLoading(true);
@@ -53,14 +55,23 @@ function BranchCheckInManagement() {
     }
   };
 
-  const handleCheckOut = async (checkInId) => {
-    try {
-      await checkOut(checkInId);
-      message.success('已办理退房');
-      fetchData();
-    } catch (error) {
-      message.error(error.message);
-    }
+  const handleCheckOut = (checkIn) => {
+    modal.confirm({
+      title: '确认退房',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要为客户 ${checkIn.customerName} 办理退房吗？房间 ${checkIn.roomId} 将变为可用状态。`,
+      okText: '确认退房',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await checkOut(checkIn.checkInId);
+          message.success('已办理退房');
+          fetchData();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
   };
 
   const handleAddConsumption = async (values) => {
@@ -99,7 +110,7 @@ function BranchCheckInManagement() {
               <Button type="link" onClick={() => setConsumptionRecord(record)}>
                 记消费
               </Button>
-              <Button type="link" danger onClick={() => handleCheckOut(record.checkInId)}>
+              <Button type="link" danger onClick={() => handleCheckOut(record)}>
                 退房
               </Button>
             </>
@@ -165,7 +176,10 @@ function BranchCheckInManagement() {
             <Input />
           </Form.Item>
           <Form.Item label="金额" name="amount" rules={[{ required: true, message: '请输入金额' }]}>
-            <InputNumber min={1} style={{ width: '100%' }} addonBefore="¥" />
+            <Space.Compact style={{ width: '100%' }}>
+              <Input disabled value="¥" style={{ width: 50, textAlign: 'center' }} />
+              <InputNumber min={1} style={{ width: '100%' }} />
+            </Space.Compact>
           </Form.Item>
           <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button onClick={() => setConsumptionRecord(null)}>取消</Button>

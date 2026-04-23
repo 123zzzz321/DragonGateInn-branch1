@@ -1,18 +1,5 @@
-import axios from 'axios';
+import api from './api';
 import useStore from '../store/useStore';
-
-const api = axios.create({
-  baseURL: '/api',
-  timeout: 10000,
-});
-
-api.interceptors.request.use((config) => {
-  const user = useStore.getState().user;
-  if (user?.token) {
-    config.headers.Authorization = `Bearer ${user.token}`;
-  }
-  return config;
-});
 
 export const login = async (username, password, accountType) => {
   try {

@@ -9,15 +9,17 @@ import {
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Badge, Button, ConfigProvider, Drawer, Layout, Menu, Spin, Typography, message } from 'antd';
+import { App as AntdApp, Badge, Button, ConfigProvider, Drawer, Layout, Menu, Spin, Typography } from 'antd';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
+import ErrorBoundary from './components/ErrorBoundary';
 import BranchCheckInManagement from './pages/branch/BranchCheckInManagement';
 import BranchHome from './pages/branch/BranchHome';
 import BranchReservationManagement from './pages/branch/BranchReservationManagement';
 import BranchRoomManagement from './pages/branch/BranchRoomManagement';
 import CustomerBrowseRooms from './pages/customer/CustomerBrowseRooms';
 import CustomerHome from './pages/customer/CustomerHome';
+import CustomerProfile from './pages/customer/CustomerProfile';
 import CustomerReservations from './pages/customer/CustomerReservations';
 import HeadquartersAccountManagement from './pages/headquarters/HeadquartersAccountManagement';
 import HeadquartersBranchManagement from './pages/headquarters/HeadquartersBranchManagement';
@@ -35,6 +37,7 @@ const roleMenus = {
     { key: '/customer/home', label: '首页', icon: <HomeOutlined /> },
     { key: '/customer/browse-rooms', label: '浏览房间', icon: <ApartmentOutlined /> },
     { key: '/customer/reservations', label: '我的预订', icon: <FileTextOutlined /> },
+    { key: '/customer/profile', label: '个人中心', icon: <UserOutlined /> },
   ],
   branch: [
     { key: '/branch/home', label: '工作台', icon: <HomeOutlined /> },
@@ -111,7 +114,7 @@ function AppShell({ isMobile, menuOpen, setMenuOpen, user, onLogout }) {
         width={260}
         onClose={() => setMenuOpen(false)}
         open={isMobile && menuOpen}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         {menu}
       </Drawer>
@@ -133,13 +136,14 @@ function ProtectedRoute({ requiredRole }) {
   return <Outlet />;
 }
 
-function App() {
+function AppContent() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useStore((state) => state.user);
   const setUser = useStore((state) => state.setUser);
   const clearUser = useStore((state) => state.clearUser);
+  const { message } = AntdApp.useApp();
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -198,49 +202,60 @@ function App() {
   }
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#1f8f63',
-          borderRadius: 14,
-        },
-      }}
-    >
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route element={<ProtectedRoute requiredRole="customer" />}>
-            <Route element={<AppShell isMobile={isMobile} menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} onLogout={handleLogout} />}>
-              <Route path="/customer/home" element={<CustomerHome />} />
-              <Route path="/customer/browse-rooms" element={<CustomerBrowseRooms />} />
-              <Route path="/customer/reservations" element={<CustomerReservations />} />
-            </Route>
+        <Route element={<ProtectedRoute requiredRole="customer" />}>
+          <Route element={<AppShell isMobile={isMobile} menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} onLogout={handleLogout} />}>
+            <Route path="/customer/home" element={<CustomerHome />} />
+            <Route path="/customer/browse-rooms" element={<CustomerBrowseRooms />} />
+            <Route path="/customer/reservations" element={<CustomerReservations />} />
+            <Route path="/customer/profile" element={<CustomerProfile />} />
           </Route>
+        </Route>
 
-          <Route element={<ProtectedRoute requiredRole="branch" />}>
-            <Route element={<AppShell isMobile={isMobile} menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} onLogout={handleLogout} />}>
-              <Route path="/branch/home" element={<BranchHome />} />
-              <Route path="/branch/room-management" element={<BranchRoomManagement />} />
-              <Route path="/branch/reservation-management" element={<BranchReservationManagement />} />
-              <Route path="/branch/checkin-management" element={<BranchCheckInManagement />} />
-            </Route>
+        <Route element={<ProtectedRoute requiredRole="branch" />}>
+          <Route element={<AppShell isMobile={isMobile} menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} onLogout={handleLogout} />}>
+            <Route path="/branch/home" element={<BranchHome />} />
+            <Route path="/branch/room-management" element={<BranchRoomManagement />} />
+            <Route path="/branch/reservation-management" element={<BranchReservationManagement />} />
+            <Route path="/branch/checkin-management" element={<BranchCheckInManagement />} />
           </Route>
+        </Route>
 
-          <Route element={<ProtectedRoute requiredRole="headquarter" />}>
-            <Route element={<AppShell isMobile={isMobile} menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} onLogout={handleLogout} />}>
-              <Route path="/headquarters/dashboard" element={<HeadquartersDashboard />} />
-              <Route path="/headquarters/branch-management" element={<HeadquartersBranchManagement />} />
-              <Route path="/headquarters/account-management" element={<HeadquartersAccountManagement />} />
-            </Route>
+        <Route element={<ProtectedRoute requiredRole="headquarter" />}>
+          <Route element={<AppShell isMobile={isMobile} menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} onLogout={handleLogout} />}>
+            <Route path="/headquarters/dashboard" element={<HeadquartersDashboard />} />
+            <Route path="/headquarters/branch-management" element={<HeadquartersBranchManagement />} />
+            <Route path="/headquarters/account-management" element={<HeadquartersAccountManagement />} />
           </Route>
+        </Route>
 
-          <Route path="/" element={<Navigate to={homeRedirect || '/login'} replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </ConfigProvider>
+        <Route path="/" element={<Navigate to={homeRedirect || '/login'} replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: '#1f8f63',
+            borderRadius: 14,
+          },
+        }}
+      >
+        <AntdApp>
+          <AppContent />
+        </AntdApp>
+      </ConfigProvider>
+    </ErrorBoundary>
   );
 }
 

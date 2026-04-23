@@ -1,7 +1,8 @@
 import api from './api';
 
-export const getBranchDashboardData = async () => {
-  const response = await api.get('/branch/dashboard');
+export const getBranchDashboardData = async (timeRange) => {
+  const params = timeRange ? { timeRange } : {};
+  const response = await api.get('/branch/dashboard', { params });
   return response.data;
 };
 

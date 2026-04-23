@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Descriptions, Modal, Table, Tag, Typography, message } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Descriptions, Modal, Table, Tag, Typography } from 'antd';
 import { cancelReservation, getMyReservations } from '../../services/customerService';
 import {
   formatDate,
@@ -15,6 +16,7 @@ function CustomerReservations() {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentReservation, setCurrentReservation] = useState(null);
+  const { message, modal } = AntdApp.useApp();
 
   const fetchReservations = async () => {
     setLoading(true);
@@ -31,14 +33,24 @@ function CustomerReservations() {
     fetchReservations();
   }, []);
 
-  const handleCancel = async (reservationId) => {
-    try {
-      await cancelReservation(reservationId);
-      message.success('预订已取消');
-      fetchReservations();
-    } catch (error) {
-      message.error(error.message);
-    }
+  const handleCancel = (reservation) => {
+    modal.confirm({
+      title: '取消预订',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要取消预订 ${reservation.reservationId} 吗？此操作不可恢复。`,
+      okText: '确认取消',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await cancelReservation(reservation.reservationId);
+          message.success('预订已取消');
+          fetchReservations();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
   };
 
   const columns = [
@@ -62,7 +74,7 @@ function CustomerReservations() {
             查看详情
           </Button>
           {record.status === 'pending' ? (
-            <Button type="link" danger onClick={() => handleCancel(record.reservationId)}>
+            <Button type="link" danger onClick={() => handleCancel(record)}>
               取消预订
             </Button>
           ) : null}

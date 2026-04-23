@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ApartmentOutlined, FileTextOutlined, RiseOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Empty, Row, Statistic, Table, Typography, message } from 'antd';
+import { ApartmentOutlined, FileTextOutlined, RiseOutlined, PlusOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Col, Empty, Row, Statistic, Table, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import { getCustomerDashboard } from '../../services/customerService';
 import { formatDate, getReservationStatusColor, getReservationStatusText } from '../../utils/formatters';
@@ -9,18 +9,23 @@ const { Title, Paragraph } = Typography;
 
 function CustomerHome() {
   const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { message } = AntdApp.useApp();
 
   useEffect(() => {
     const fetchDashboard = async () => {
+      setLoading(true);
       try {
         setDashboard(await getCustomerDashboard());
       } catch (error) {
         message.error(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchDashboard();
-  }, []);
+  }, [message]);
 
   const columns = [
     { title: '预订号', dataIndex: 'reservationId', key: 'reservationId' },
@@ -45,17 +50,17 @@ function CustomerHome() {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
-          <Card className="soft-card">
+          <Card className="soft-card" loading={loading}>
             <Statistic title="累计预订" value={dashboard?.totalReservations || 0} prefix={<FileTextOutlined />} />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card className="soft-card">
+          <Card className="soft-card" loading={loading}>
             <Statistic title="有效预订" value={dashboard?.activeReservations || 0} prefix={<RiseOutlined />} />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card className="soft-card">
+          <Card className="soft-card" loading={loading}>
             <Statistic title="入住记录" value={dashboard?.totalCheckIns || 0} prefix={<ApartmentOutlined />} />
           </Card>
         </Col>
@@ -79,11 +84,24 @@ function CustomerHome() {
           </Card>
         </Col>
         <Col xs={24} md={14}>
-          <Card className="soft-card" title="最近预订">
+          <Card className="soft-card" title="最近预订" loading={loading}>
             {dashboard?.recentReservations?.length ? (
               <Table columns={columns} dataSource={dashboard.recentReservations} rowKey="reservationId" pagination={false} />
             ) : (
-              <Empty description="暂时还没有预订记录" />
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <span>
+                    暂无预订记录
+                    <br />
+                    <Link to="/customer/browse-rooms">
+                      <Button type="link" icon={<PlusOutlined />}>
+                        立即预订
+                      </Button>
+                    </Link>
+                  </span>
+                }
+              />
             )}
           </Card>
         </Col>

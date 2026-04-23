@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Empty, Form, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import { createAccount, disableAccount, enableAccount, getAllAccounts, updateAccount } from '../../services/accountService';
 
 const { Title, Paragraph } = Typography;
@@ -16,6 +17,7 @@ function HeadquartersAccountManagement() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
   const [form] = Form.useForm();
+  const { message, modal } = AntdApp.useApp();
 
   const fetchAccounts = async () => {
     setLoading(true);
@@ -47,6 +49,31 @@ function HeadquartersAccountManagement() {
     } catch (error) {
       message.error(error.message);
     }
+  };
+
+  const handleToggleStatus = (record) => {
+    const action = record.status === 'active' ? '禁用' : '启用';
+    modal.confirm({
+      title: `确认${action}账户`,
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要${action}账户 "${record.username}" 吗？`,
+      okText: `确认${action}`,
+      okType: record.status === 'active' ? 'danger' : 'primary',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          if (record.status === 'active') {
+            await disableAccount(record.id);
+          } else {
+            await enableAccount(record.id);
+          }
+          message.success(`账户已${action}`);
+          fetchAccounts();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
   };
 
   const columns = [
@@ -83,14 +110,7 @@ function HeadquartersAccountManagement() {
           <Button
             type="link"
             danger={record.status === 'active'}
-            onClick={async () => {
-              if (record.status === 'active') {
-                await disableAccount(record.id);
-              } else {
-                await enableAccount(record.id);
-              }
-              fetchAccounts();
-            }}
+            onClick={() => handleToggleStatus(record)}
           >
             {record.status === 'active' ? '禁用' : '启用'}
           </Button>

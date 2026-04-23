@@ -11,13 +11,53 @@ const {
 
 const router = express.Router();
 
+function generateMonthlyRevenue(timeRange = 12) {
+  const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+  const displayMonths = months.slice(-timeRange);
+  return displayMonths.map((month, index) => ({
+    month,
+    revenue: Math.floor(Math.random() * 50000) + 30000,
+    lastYear: Math.floor(Math.random() * 40000) + 25000,
+  }));
+}
+
+function generateOccupancyTrend(timeRange = 7) {
+  const days = [];
+  for (let i = timeRange - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    days.push({
+      date: `${date.getMonth() + 1}/${date.getDate()}`,
+      rate: Math.floor(Math.random() * 30) + 60,
+    });
+  }
+  return days;
+}
+
+function generateBranchRevenue() {
+  return branches.map((branch) => ({
+    name: branch.branchName.replace('分店', ''),
+    revenue: Math.floor(Math.random() * 80000) + 40000,
+    rooms: rooms.filter((r) => r.branchId === branch.branchId).length,
+  }));
+}
+
+function calculateTotalRevenue(timeRange = 30) {
+  let total = 0;
+  for (let i = 0; i < timeRange; i++) {
+    total += Math.floor(Math.random() * 15000) + 5000;
+  }
+  return total;
+}
+
 router.get('/dashboard', (req, res) => {
   const user = requireUser(req, res, 'headquarter');
   if (!user) {
     return;
   }
 
-  const { branchId } = req.query;
+  const { branchId, timeRange = 7 } = req.query;
+  const timeRangeNum = parseInt(timeRange, 10) || 7;
   const scopedRooms =
     branchId && branchId !== 'all' ? rooms.filter((room) => room.branchId === branchId) : rooms;
   const scopedReservations =
@@ -60,6 +100,14 @@ router.get('/dashboard', (req, res) => {
     branchStats,
     recentReservations: scopedReservations.slice(-5).reverse(),
     recentCheckIns: scopedCheckIns.slice(-5).reverse(),
+    monthlyRevenue: generateMonthlyRevenue(timeRangeNum > 30 ? 12 : 6),
+    occupancyTrend: generateOccupancyTrend(timeRangeNum),
+    branchRevenue: generateBranchRevenue(),
+    totalRevenue: calculateTotalRevenue(timeRangeNum),
+    totalReservations: scopedReservations.length,
+    avgOccupancyRate: scopedRooms.length > 0 
+      ? Math.round((scopedRooms.filter((room) => !room.isEmpty).length / scopedRooms.length) * 100) 
+      : 0,
   });
 });
 

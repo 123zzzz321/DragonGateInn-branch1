@@ -7,6 +7,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  // 使用zustand的方式获取用户信息
   const user = useStore.getState().user;
   if (user?.token) {
     config.headers.Authorization = `Bearer ${user.token}`;

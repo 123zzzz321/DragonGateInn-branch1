@@ -20,29 +20,84 @@ const normalizeRoomStatus = (room) => {
   return room.isEmpty ? 'available' : 'occupied';
 };
 
+function generateBranchDailyRevenue(timeRange = 7) {
+  const days = [];
+  for (let i = timeRange - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    days.push({
+      date: `${date.getMonth() + 1}/${date.getDate()}`,
+      revenue: Math.floor(Math.random() * 8000) + 2000,
+      checkIns: Math.floor(Math.random() * 5) + 1,
+    });
+  }
+  return days;
+}
+
+function generateBranchOccupancyTrend(timeRange = 7) {
+  const days = [];
+  for (let i = timeRange - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    days.push({
+      date: `${date.getMonth() + 1}/${date.getDate()}`,
+      rate: Math.floor(Math.random() * 30) + 55,
+    });
+  }
+  return days;
+}
+
+function generateRoomTypeRevenue() {
+  return [
+    { name: '大床房', revenue: Math.floor(Math.random() * 15000) + 8000, count: Math.floor(Math.random() * 30) + 20 },
+    { name: '双床房', revenue: Math.floor(Math.random() * 12000) + 6000, count: Math.floor(Math.random() * 25) + 15 },
+    { name: '豪华房', revenue: Math.floor(Math.random() * 20000) + 10000, count: Math.floor(Math.random() * 15) + 10 },
+    { name: '套房', revenue: Math.floor(Math.random() * 25000) + 15000, count: Math.floor(Math.random() * 10) + 5 },
+  ];
+}
+
+function calculateBranchTotalRevenue(timeRange = 7) {
+  let total = 0;
+  for (let i = 0; i < timeRange; i++) {
+    total += Math.floor(Math.random() * 8000) + 2000;
+  }
+  return total;
+}
+
 router.get('/dashboard', (req, res) => {
   const user = requireUser(req, res, 'branch');
   if (!user) {
     return;
   }
 
+  const { timeRange = 7 } = req.query;
+  const timeRangeNum = parseInt(timeRange, 10) || 7;
   const branchId = getBranchFromUser(user);
   const branchRooms = rooms.filter((room) => room.branchId === branchId);
   const branchReservations = reservations.filter((item) => item.branchId === branchId);
   const branchCheckIns = checkIns.filter((item) => item.branchId === branchId);
 
   const today = new Date().toISOString().slice(0, 10);
+  const occupancyRate = branchRooms.length > 0 
+    ? Math.round((branchRooms.filter((room) => !room.isEmpty).length / branchRooms.length) * 100) 
+    : 0;
 
   res.json({
     branchInfo: { branchId, branchName: getBranchName(branchId) },
     totalRooms: branchRooms.length,
     availableRooms: branchRooms.filter((room) => room.isAvailable && room.isEmpty).length,
     occupiedRooms: branchRooms.filter((room) => !room.isEmpty).length,
+    occupancyRate,
     pendingReservations: branchReservations.filter((item) => item.status === 'pending').length,
     todayCheckIns: branchCheckIns.filter((item) => item.checkInDate?.slice(0, 10) === today).length,
     todayCheckOuts: branchCheckIns.filter((item) => item.checkOutDate?.slice(0, 10) === today).length,
     recentReservations: branchReservations.slice(-5).reverse(),
     recentCheckIns: branchCheckIns.slice(-5).reverse(),
+    dailyRevenue: generateBranchDailyRevenue(timeRangeNum),
+    occupancyTrend: generateBranchOccupancyTrend(timeRangeNum),
+    roomTypeRevenue: generateRoomTypeRevenue(),
+    totalRevenue: calculateBranchTotalRevenue(timeRangeNum),
+    totalReservations: branchReservations.length,
   });
 });
 

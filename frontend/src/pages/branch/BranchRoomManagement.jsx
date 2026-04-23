@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography, message } from 'antd';
-import { addRoom, getRooms, updateRoom } from '../../services/roomService';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Card, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, Typography } from 'antd';
+import { addRoom, deleteRoom, getRooms, updateRoom } from '../../services/roomService';
 import { formatCurrency, formatRoomType, getRoomStatusText } from '../../utils/formatters';
 
 const { Title, Paragraph } = Typography;
@@ -17,6 +18,7 @@ function BranchRoomManagement() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
   const [form] = Form.useForm();
+  const { message, modal } = AntdApp.useApp();
 
   const fetchRooms = async () => {
     setLoading(true);
@@ -84,6 +86,26 @@ function BranchRoomManagement() {
     }
   };
 
+  const handleDelete = (room) => {
+    modal.confirm({
+      title: '确认删除',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要删除房间 ${room.roomId} 吗？此操作不可恢复。`,
+      okText: '确认删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await deleteRoom(room.roomId);
+          message.success('房间已删除');
+          fetchRooms();
+        } catch (error) {
+          message.error(error.message);
+        }
+      },
+    });
+  };
+
   const columns = [
     { title: '房间号', dataIndex: 'roomId', key: 'roomId' },
     { title: '房型', dataIndex: 'roomType', key: 'roomType', render: formatRoomType },
@@ -98,9 +120,14 @@ function BranchRoomManagement() {
       title: '操作',
       key: 'action',
       render: (_, record) => (
-        <Button type="link" onClick={() => openForEdit(record)}>
-          编辑
-        </Button>
+        <Space>
+          <Button type="link" onClick={() => openForEdit(record)}>
+            编辑
+          </Button>
+          <Button type="link" danger onClick={() => handleDelete(record)}>
+            删除
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -132,7 +159,10 @@ function BranchRoomManagement() {
             <Input disabled={Boolean(editingRoom)} />
           </Form.Item>
           <Form.Item label="面积" name="area" rules={[{ required: true, message: '请输入面积' }]}>
-            <InputNumber min={10} style={{ width: '100%' }} addonAfter="㎡" />
+            <Space.Compact style={{ width: '100%' }}>
+              <InputNumber min={10} style={{ width: '100%' }} />
+              <Input disabled value="㎡" style={{ width: 50, textAlign: 'center' }} />
+            </Space.Compact>
           </Form.Item>
           <Form.Item label="床型" name="bedType" rules={[{ required: true, message: '请选择床型' }]}>
             <Select options={[{ label: '大床', value: '大床' }, { label: '双床', value: '双床' }, { label: '套房', value: '套房' }]} />
@@ -144,7 +174,10 @@ function BranchRoomManagement() {
             <Select options={[{ label: '有窗', value: true }, { label: '无窗', value: false }]} />
           </Form.Item>
           <Form.Item label="价格" name="price" rules={[{ required: true, message: '请输入价格' }]}>
-            <InputNumber min={0} style={{ width: '100%' }} addonBefore="¥" />
+            <Space.Compact style={{ width: '100%' }}>
+              <Input disabled value="¥" style={{ width: 50, textAlign: 'center' }} />
+              <InputNumber min={0} style={{ width: '100%' }} />
+            </Space.Compact>
           </Form.Item>
           <Form.Item label="状态" name="status" rules={[{ required: true, message: '请选择状态' }]}>
             <Select options={statusOptions} />

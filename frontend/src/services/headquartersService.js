@@ -1,7 +1,9 @@
 import api from './api';
 
-export const getHeadquartersDashboardData = async (branchId) => {
-  const params = branchId ? { branchId } : {};
+export const getHeadquartersDashboardData = async (branchId, timeRange) => {
+  const params = {};
+  if (branchId) params.branchId = branchId;
+  if (timeRange) params.timeRange = timeRange;
   const response = await api.get('/headquarters/dashboard', { params });
   return response.data;
 };
