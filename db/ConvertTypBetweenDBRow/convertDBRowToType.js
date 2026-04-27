@@ -8,6 +8,7 @@ const headquarterAccount = require('../../account/headquarterAccount');
 const {checkIn,person,checkInFactory}=require('../../branchResource/checkIn/checkIn');
 const {reservationState,reservation,reservationFactory}=require('../../branchResource/reservation/reservation');
 const {room,RoomLayout,BedInRoom}=require('../../branchResource/room/room');
+const {displayRoom}=require('../../branchResource/displayRoom/displayRoom');
 const activeState = require('../../util/activeState');
 
 
@@ -130,6 +131,7 @@ class convertDBRowToType{
        this.registerConverter('room',(obj)=>{
             const result = new room(
                obj.ID,
+               obj.BRANCHID,
                this.convertToType('roomLayout',obj.ROOMLAYOUT)
             );
             if (obj.ACTIVESTATE == 1) {
@@ -139,6 +141,21 @@ class convertDBRowToType{
             }
             result.isEmptyBool = (obj.ISEMPTYBOOL == 1 || obj.ISEMPTY) == 1?true:false;
             result.priceReal = obj.PRICEREAL;
+            return result;
+       })
+
+       this.registerConverter('displayRoom',(obj)=>{
+            const result = new displayRoom(
+               obj.ID,
+               obj.BRANCHID,
+               this.convertToType('roomLayout',obj.ROOMLAYOUT),
+               obj.APPRAISEPRICE || 0
+            );
+            if (obj.ACTIVESTATE == 1) {
+                result.setEnable();
+            } else {
+                result.setDisable();
+            }
             return result;
        })
     }

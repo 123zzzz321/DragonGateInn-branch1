@@ -30,7 +30,7 @@ class checkoutTransaction extends transaction{
         // 设置退房日期为当前时间
         curCheckIn.setCheckOutDateAsNow();
              
-       
+        this.changeDatabase('update',curCheckIn);
         return this.packageResult(true,curCheckIn,"入住订单退房成功");
     }
 }

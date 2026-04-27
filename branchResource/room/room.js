@@ -51,9 +51,12 @@ class RoomLayout{
  * 酒店房间类
  */
 class room{
-    constructor(id,roomType=new RoomLayout(0,false,new BedInRoom("单人床",1))){
+    constructor(id,branchId,roomType=new RoomLayout(0,false,new BedInRoom("单人床",1))){
         //房间编号
         this.id=id;
+
+        //房间所属的酒店的编号
+        this.branchId=branchId;
 
         //房间的户型
         assert(roomType instanceof RoomLayout); 
@@ -76,6 +79,15 @@ class room{
     getID(){
         return this.id;
     }
+
+    /**
+     * 获取房间所属的酒店的编号
+     * @returns {string} 房间的所属的酒店的编号
+     */
+    getBranchId(){
+        return this.branchId;
+    }
+    
 
     /**
      * 获取房间的户型

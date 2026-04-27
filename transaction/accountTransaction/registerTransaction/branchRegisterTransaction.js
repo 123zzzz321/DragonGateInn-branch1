@@ -38,6 +38,11 @@ class branchRegisterTransaction extends transaction{
             transaction.getManager(manager).addNewBranchManager(newBranchAccount.getID());
         })
 
+        //记录下这个变更
+        this.changeDatabase('insert',newBranchAccount);
+        //创建这个分店管理的表格
+        this.changeDatabase('createBranchResourceTable',newBranchAccount);
+        
         // 返回新申请的分店账号
         return this.packageResult(true,newBranchAccount,"注册成功");
 

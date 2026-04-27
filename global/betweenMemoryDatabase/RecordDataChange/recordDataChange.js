@@ -33,10 +33,15 @@ class recordDataChange{
      * 获取变更的类型对应的表配置
      */
     getConfig(){
+        //如果是账号变更，直接返回账号表配置
         if(this.getIsAccount()){
             return accountClassTableConfigs.find(config=> this.changeData instanceof config.type);
         }
-        return getBranchResourceTableConfig.find(config=> this.changeData instanceof config.type);
+        //如果不是账号变更，用分店id拼接资源配置表
+        else{
+            return getBranchResourceTableConfig(this.changeData.getBranchId())
+                .find(config=> this.changeData instanceof config.type);
+        }
     }
 
     /**
@@ -63,15 +68,31 @@ class recordDataChangeManager{
         this.changeList=[];
     }
 
-
+    /**
+     * 缓存变更
+     */
     addChange(change){
         this.changeList.push(change);
     }
 
+    /**
+     * 创建变更记录
+     * @param {*} changeType 变更类型
+     * @param {*} changeData 变更数据
+     */
+    createChange(changeType,changeData){
+        this.changeList.push(new recordDataChange(changeType,changeData));
+    }
+
+    /**
+     * 创建分支资源表
+     */
     async createBranchResourceTable(change){
+        //将这个分店的id和分店资源配置表拼在一起
         const configs = createTableSQLConfig(change.changeData.getID());
         for (const config of configs) {
             try {
+                //将每个配置表都创建成数据库里的表
                 await globalDatabaseAccessLayer.createTableBySQL(config.sql);
             } catch (error) {
                 console.error(`创建表 ${config.tableName} 失败:`, error.message);
@@ -105,6 +126,11 @@ class recordDataChangeManager{
                 await this.createBranchResourceTable(change);
             }
         }
+        this.changeList=[];
+    }
+
+    clearChange()
+    {
         this.changeList=[];
     }
 }

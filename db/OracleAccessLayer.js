@@ -1,8 +1,9 @@
 const util = require('util');
-
+const assert = require('assert');
 
 const DatabaseAccessLayer = require('./DatabaseAccessLayer');
 const oracledb = require('oracledb'); // 直接导入，不再使用try-catch
+const e = require('express');
 
 // Oracle数据库访问实现类
 class OracleAccessLayer extends DatabaseAccessLayer {
@@ -43,7 +44,7 @@ class OracleAccessLayer extends DatabaseAccessLayer {
             if (this.connection) {
 
                 console.log('Oracle数据库断开连接中...');
-                
+
                 await this.connection.close();
                 this.connection = null;
 
@@ -76,8 +77,8 @@ class OracleAccessLayer extends DatabaseAccessLayer {
             await this.ensureConnection();
             console.log(`获取表${tableName}的所有列信息`);
             const result = await this.connection.execute(
-                `SELECT column_name, data_type 
-                 FROM user_tab_columns 
+                `SELECT column_name, data_type
+                 FROM user_tab_columns
                  WHERE table_name = UPPER(:tableName)`,
                 { tableName: tableName }
             );
@@ -113,6 +114,78 @@ class OracleAccessLayer extends DatabaseAccessLayer {
             throw error;
         }
     }
+    
+    /**
+     * 将JavaScript日期对象转换为Oracle数据库中的日期字符串
+     * @param {Date} date - JavaScript日期对象
+     * @returns {string} Oracle数据库中的日期字符串
+     */
+    _convertJSDateToOracleDate(date)
+    {
+        assert(date instanceof Date);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    }
+
+    /**
+     * 检测字符串是否为ISO 8601格式日期字符串
+     * @param {string} str - 要检测的字符串
+     * @returns {boolean} 是否为ISO 8601格式日期字符串
+     */
+    _stringIsISO8601Date(str)
+    {
+        return str && typeof str === 'string' && str.includes('T') 
+                && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(str);
+    }
+
+    /**
+     * 遍历所有的数据字段，整理其中与日期相关的数据的格式
+     * 将JavaScript日期对象转换为Oracle数据库中的日期字符串，处理ISO 8601格式日期字符串
+     * @param {Object} data - 包含日期对象的JavaScript对象
+     * @returns {Object} 包含Oracle数据库中的日期字符串和普通值的数组
+     */
+    _convertDateToOracleRow(data)
+    {
+        
+        //生成实际修改的数据
+        const values = [];
+        for (const [_, value] of Object.entries(data)){
+             // 日期对象或ISO 8601格式日期字符串
+            if (this._stringIsISO8601Date(value)||value instanceof Date) {
+                values.push(this._convertJSDateToOracleDate(value instanceof Date?value:new Date(value)));
+            }
+            else{
+                values.push(value);
+            }
+        }
+
+        //生成占位符
+        const placeholders = [];
+        const indexs = Array.from({length: Object.keys(data).length}, (_, i) => i + 1);
+        for (const [_, value] of Object.entries(data)){
+            // 处理日期相关的数据
+            if (this._stringIsISO8601Date(value)||value instanceof Date) {
+                placeholders.push(`TO_DATE(:${indexs.shift()}, 'YYYY-MM-DD HH24:MI:SS')`);   
+            }
+            else{
+                // 普通值
+                placeholders.push(`:${indexs.shift()}`);
+            }
+        }
+
+        return {
+            placeholders,
+            values
+        }
+    }
 
     /**
      * 向表中写入数据
@@ -124,16 +197,24 @@ class OracleAccessLayer extends DatabaseAccessLayer {
         try {
             await this.ensureConnection();
             console.log(`向表${tableName}插入数据:`, data);
-            
+
             // 构建INSERT语句
-            const columns = Object.keys(data);
-            const placeholders = columns.map((_, index) => `:${index + 1}`);
-            const sql = `INSERT INTO ${tableName} (${columns.join(', ')}) 
+            const columns = [];
+            Object.keys(data).forEach(key => {
+                columns.push(key);
+            });
+
+            const {placeholders,values}=this._convertDateToOracleRow(data);
+            
+            const sql = `INSERT INTO ${tableName} (${columns.join(', ')})
                         VALUES (${placeholders.join(', ')})`;
+
+            console.log('SQL语句:', sql);
+            console.log('参数值:', values);
 
             const result = await this.connection.execute(
                 sql,
-                Object.values(data),
+                values,
                 { autoCommit: true }
             );
 
@@ -156,7 +237,7 @@ class OracleAccessLayer extends DatabaseAccessLayer {
         const setClause = Object.keys(data)
             .map((key, index) => `${key} = :${index + 1}`)
             .join(', ');
-        
+
         const whereClause = Object.keys(condition)
             .map((key, index) => `${key} = :${Object.keys(data).length + index + 1}`)
             .join(' AND ');
@@ -178,14 +259,27 @@ class OracleAccessLayer extends DatabaseAccessLayer {
         try {
             await this.ensureConnection();
             console.log(`更新表${tableName}的数据:`, data, '条件:', condition);
-            
-            const sql = `UPDATE ${tableName} 
-                        SET ${this.createUpdateClause(data,condition).setClause} 
-                        WHERE ${this.createUpdateClause(data,condition).whereClause}`;
+
+            const {placeholders, values} = this._convertDateToOracleRow(data);
+            const columns = Object.keys(data);
+
+            const setClause = columns.map((col, i) => `${col} = ${placeholders[i]}`).join(', ');
+
+            const conditionValues = Object.values(condition);
+            const whereParts = Object.keys(condition)
+                .map((key, i) => `${key} = :${values.length + i + 1}`)
+                .join(' AND ');
+
+            const sql = `UPDATE ${tableName}
+                        SET ${setClause}
+                        WHERE ${whereParts}`;
+
+            console.log('SQL语句:', sql);
+            console.log('参数值:', values);
 
             const result = await this.connection.execute(
                 sql,
-                [...Object.values(data), ...Object.values(condition)],
+                [...values, ...conditionValues],
                 { autoCommit: true }
             );
 
@@ -206,11 +300,10 @@ class OracleAccessLayer extends DatabaseAccessLayer {
         try {
             await this.ensureConnection();
             console.log(`删除表${tableName}的数据:`, condition);
-            
-            const sql = 
-            `DELETE FROM ${tableName} 
+
+            const sql = `DELETE FROM ${tableName}
             WHERE ${this.createUpdateClause({},condition).whereClause}`;
-            
+
             const result = await this.connection.execute(
                 sql,
                 Object.values(condition),
@@ -224,7 +317,6 @@ class OracleAccessLayer extends DatabaseAccessLayer {
         }
     }
 
-
     /**
      * 创建表
      * @param {string} tableName - 表名或完整的SQL语句
@@ -234,7 +326,7 @@ class OracleAccessLayer extends DatabaseAccessLayer {
     async createTable(tableName, columns) {
         try {
             await this.ensureConnection();
-            
+
             let sql;
             if (columns) {
                 // 如果提供了列信息，构建SQL语句
@@ -245,7 +337,7 @@ class OracleAccessLayer extends DatabaseAccessLayer {
                 console.log('执行创建表的SQL语句');
                 sql = tableName;
             }
-            
+
             await this.connection.execute(sql, { autoCommit: true });
             return true;
         } catch (error) {

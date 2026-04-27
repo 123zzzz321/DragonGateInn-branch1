@@ -9,14 +9,12 @@ const headquarterAccountManager = require('../../accountManager/headquarterAccou
 const {checkIn,person,checkInFactory}=require('../../branchResource/checkIn/checkIn');
 const {reservationState,reservation,reservationFactory}=require('../../branchResource/reservation/reservation');
 const {room,RoomLayout,BedInRoom}=require('../../branchResource/room/room');
-
-const branchCheckInManager=require('../../branchResource/checkIn/branchCheckInManager');
-const branchReservationManager=require('../../branchResource/reservation/branchReservationManager');
-const branchRoomManager=require('../../branchResource/room/branchRoomManager');
+const {displayRoom}=require('../../branchResource/displayRoom/displayRoom');
 
 const allCheckInManager=require('../../branchResource/checkIn/allCheckInManager');
 const allReservationManager=require('../../branchResource/reservation/allReservationManager');  
 const allRoomManager=require('../../branchResource/room/allRoomManager');
+const allDisplayRoomManager=require('../../branchResource/displayRoom/allDisplayRoomManager');
 
 const SingletonFactory=require('../../util/SingletonFactory');
 
@@ -42,7 +40,7 @@ const accountClassTableConfigs = [
 
 
 
-const branchResoucrceTableConfig=[
+const branchResourceTableConfig=[
     {
         tableName: 'CHECKIN' ,
         type: checkIn,
@@ -57,15 +55,28 @@ const branchResoucrceTableConfig=[
         tableName: 'ROOM' ,
         type: room,
         manager: SingletonFactory.getInstance(allRoomManager)
+    },
+    {
+        tableName: 'DISPLAYROOM' ,
+        type: displayRoom,
+        manager: SingletonFactory.getInstance(allDisplayRoomManager)
     }
 ]
 
 function getBranchResourceTableConfig(branchId){
-    return branchResoucrceTableConfig.map(item=>{
-        item.tableName=item.tableName+'_'+branchId;
-        item.type=item.type;
-        item.manager=item.manager.getOneManagerByBranchId(branchId);
-        return item;
+    return branchResourceTableConfig.map(item=>{
+        const result={
+            tableName: item.tableName + '_' + branchId,
+            type: item.type,
+            manager: item.manager
+        }
+        if(typeof item.manager.getOneManagerByBranchId !== 'function'){
+            console.log(item.manager);  
+        }
+        result.manager=item.manager.getOneManagerByBranchId(branchId);
+
+       
+        return result;
     })
 }
 module.exports.accountClassTableConfigs=accountClassTableConfigs;

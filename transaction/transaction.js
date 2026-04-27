@@ -1,5 +1,8 @@
 const SingletonFactory=require('../util/SingletonFactory');
 const assert=require('assert');
+
+const {recordDataChangeManager}=require('../global/betweenMemoryDatabase/RecordDataChange/recordDataChange');
+const databaseChangeManager=SingletonFactory.getInstance(recordDataChangeManager);
 /**
  * 事务类
  * 管理系统内所有用户可以进行的改变系统状态的行为，
@@ -46,6 +49,15 @@ class transaction{
      */
     static getManager(managerType){
         return SingletonFactory.getInstance(managerType);
+    }
+
+    /**
+     * 需要改变数据库时，记录下这个更改
+     * @param {*} changeType 变更类型
+     * @param {*} changeData 变更数据
+     */
+    changeDatabase(changeType,changeData){
+        databaseChangeManager.createChange(changeType,changeData);
     }
 }
 

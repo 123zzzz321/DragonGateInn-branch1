@@ -30,6 +30,9 @@ class addConsumeTransaction extends transaction{
        
         // 添加消费金额
         curCheckIn.addConsumeNumber(consume);
+
+        //记录下这个变更
+        this.changeDatabase('update',curCheckIn);
              
        
         return this.packageResult(true,curCheckIn,"添加消费成功");

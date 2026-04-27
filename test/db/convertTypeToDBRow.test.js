@@ -88,11 +88,12 @@ describe('convertTypeToDBRow',()=>{
     });
 
     it('should convert room ',()=>{
-        const newRoom = new room('101');
+        const newRoom = new room('101','branch1');
         const dbRow = convertManager.convert(newRoom);
         
         expect(dbRow).toEqual({
             ID: '101',
+            BRANCHID: 'branch1',
             ROOMLAYOUT_AREAREAL: 0,
             ROOMLAYOUT_WINDOWBOOL: 0,
             ROOMLAYOUT_BEDTYPE_TYPESTRING: "单人床",

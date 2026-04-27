@@ -52,6 +52,9 @@ class customerReservateTransaction extends transaction{
         transaction.getManager(allReservationManager)
             .getOneManagerByBranchId(branchId)
             .addNewReservation(newReservation);
+
+        //记录下这个变更
+        this.changeDatabase('insert',newReservation);
             
         return this.packageResult(true,newReservation,"预订成功");
     }

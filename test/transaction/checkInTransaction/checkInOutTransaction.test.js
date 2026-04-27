@@ -9,10 +9,13 @@ const {person}=require('../../../branchResource/checkIn/checkIn.js')
 const allRoomManager=require('../../../branchResource/room/allRoomManager');
 const allCheckInManager=require('../../../branchResource/checkIn/allCheckInManager');
 
+const {recordDataChangeManager}=require('../../../global/betweenMemoryDatabase/RecordDataChange/recordDataChange')
 
 
 describe('createCheckInTransaction',()=>{
-    it('createCheckInTransaction',()=>{
+    it('createCheckInTransaction',async()=>{
+
+
         const newBranchRegisterTransaction=new branchRegisterTransaction();
         const newBranchAccount= newBranchRegisterTransaction.execute().resultContent;
 
@@ -42,7 +45,6 @@ describe('createCheckInTransaction',()=>{
             .getOneManagerByBranchId(newBranchAccount.getID())
             .getOneObjectById(newCheckIn.getID())
             .getIsCheckedOut()).toBe(true);
-
 
        
     })

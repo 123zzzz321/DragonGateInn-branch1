@@ -8,7 +8,8 @@ function getCreateTableSQLconfig(branchId) {
         {
             tableName: `ROOM`,
             sql: `  CREATE TABLE ROOM_${branchId} (
-                    ID VARCHAR2(50) NOT NULL,            
+                    ID VARCHAR2(50) NOT NULL,        
+                    BRANCHID VARCHAR2(50),              
                     ROOMLAYOUT_AREAREAL NUMBER(10, 2),    
                     ROOMLAYOUT_WINDOWBOOL NUMBER(1),      
                     ROOMLAYOUT_BEDTYPE_TYPESTRING VARCHAR2(100), 
@@ -46,6 +47,20 @@ function getCreateTableSQLconfig(branchId) {
                     ROOMLAYOUT_WINDOWBOOL NUMBER(1),       
                     RESERVATIONSTATE VARCHAR2(20),        
                     CONSTRAINT PK_RESERVATION_DETAIL_${branchId} PRIMARY KEY (ID)
+                )`
+        },
+        {
+            tableName: `DISPLAYROOM`,
+            sql: `  CREATE TABLE DISPLAYROOM_${branchId}  (
+                    ID VARCHAR2(50) NOT NULL,              
+                    BRANCHID VARCHAR2(50),                 
+                    ROOMLAYOUT_AREAREAL NUMBER(10, 2),    
+                    ROOMLAYOUT_WINDOWBOOL NUMBER(1),       
+                    ROOMLAYOUT_BEDTYPE_TYPESTRING VARCHAR2(100), 
+                    ROOMLAYOUT_BEDTYPE_NUMINT NUMBER(10),  
+                    APPRAISEPRICE NUMBER(12, 2),           
+                    ACTIVESTATE NUMBER(1),                 
+                    CONSTRAINT PK_DISPLAYROOM_${branchId} PRIMARY KEY (ID)
                 )`
         }
     ];

@@ -39,6 +39,12 @@ class branchAddRoomTransaction extends branchRoomTransaction{
             }
         });
 
+        args.forEach((item,index)=>{
+            if(index>0){
+                this.changeDatabase('insert',item);
+            }
+        });
+
         return this.packageResult(true,null,"房间添加成功");
     }
 }

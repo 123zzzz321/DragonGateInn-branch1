@@ -55,6 +55,7 @@ describe('convertTypeToDBRow',()=>{
     it('should convert room to DB row',()=>{
         const dbRow={
             ID: '101',
+            BRANCHID: 'branch1',
             ROOMLAYOUT_AREAREAL: 0,
             ROOMLAYOUT_WINDOWBOOL: 0,
             ROOMLAYOUT_BEDTYPE_TYPESTRING: "单人床",
@@ -64,7 +65,7 @@ describe('convertTypeToDBRow',()=>{
             PRICEREAL: 0,
         }
         const roomInstance = curConvertDBRowToType.convert('room',dbRow);
-        expect(roomInstance).toEqual(new room('101'));
+        expect(roomInstance).toEqual(new room('101','branch1'));
     });
 
     it('checkIn',()=>{

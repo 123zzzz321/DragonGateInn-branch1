@@ -34,6 +34,8 @@ class concelReservationTransaction extends transaction{
         }
 
         reservation.cancel();
+
+        this.changeDatabase('update',reservation);
         return this.packageResult(true,null,"取消成功");
     }
 }

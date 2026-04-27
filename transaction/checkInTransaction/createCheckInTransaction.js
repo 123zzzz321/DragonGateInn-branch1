@@ -80,6 +80,9 @@ class createCheckInTransaction extends transaction{
             .getOneManagerByBranchId(branchId)
             .addNewCheckIn(newCheckIn);
 
+        //在数据库中记录下这个变更
+        this.changeDatabase('insert',newCheckIn);
+        
         return this.packageResult(true,newCheckIn,'success');
     }
 }

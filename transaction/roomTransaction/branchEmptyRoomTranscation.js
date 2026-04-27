@@ -38,6 +38,14 @@ class branchEmptyRoomTransaction extends branchRoomTransaction{
                 .setOneRoomEmpty(item);
             }
         });
+
+        //更新数据库
+        args.forEach((item,index)=>{
+            if(index>0){
+                this.changeDatabase('update',this.getNeedChangeBranchRoomManager(args[0])
+                    .getOneRoomById(item));
+            }
+        });
         
         return this.packageResult(true,null,"房间释放成功");
     }

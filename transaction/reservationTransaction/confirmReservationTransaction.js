@@ -35,6 +35,8 @@ class confirmReservationTransaction extends transaction{
         
         // 确认预约订单
         reservation.confirm();
+
+        this.changeDatabase('update',reservation);
         return this.packageResult(true,null,"确认成功");
     }
 }

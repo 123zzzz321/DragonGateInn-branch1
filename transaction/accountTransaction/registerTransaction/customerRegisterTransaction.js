@@ -33,12 +33,17 @@ class customerRegisterTransaction extends transaction{
          if(transaction.getManager(customerAccountManager).getCustomAccountByPhoneString(phoneString)!==undefined){
             throw new Error('注册顾客账户时，使用的手机号已存在');
         }
-
+        
+       
+        
         const newCustomerAccount=
             new customerAccount(transaction.getManager(accountApplication).getRandomAccount(),password,phoneString)
         
         transaction.getManager(customerAccountManager)
             .addOneNewAccount(newCustomerAccount);       
+            
+        //记录下这个变更
+        this.changeDatabase('insert',newCustomerAccount);
         
         return this.packageResult(true,newCustomerAccount,"注册成功");
     }

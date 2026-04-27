@@ -30,12 +30,22 @@ class branchDisableRoomTransaction extends branchRoomTransaction{
         //检查添加的变量是否是房间id(是否是string类型，是否在管理器中存在)
         assert(this.checkRoomIdArg(args));
 
+        //在内存里下架房间
         args.forEach((item,index)=>{
             if(index>0){
                 this.getNeedChangeBranchRoomManager(args[0])
                     .setOneRoomDisable(item);
             }
         });
+
+        //更新数据库
+        args.forEach((item,index)=>{
+            if(index>0){
+                this.changeDatabase('update',this.getNeedChangeBranchRoomManager(args[0])
+                    .getOneRoomById(item));
+            }
+        });
+        
         
         return this.packageResult(true,null,"房间下架成功");
     }

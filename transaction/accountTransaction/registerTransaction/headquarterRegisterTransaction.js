@@ -26,7 +26,10 @@ class headquarterRegisterTransaction extends transaction{
         transaction.getManager(headquarterManager)
             .addOneNewAccount(
                 newHeadquarterAccount);
-
+                
+        //记录下这个变更
+        this.changeDatabase('insert',newHeadquarterAccount);
+        
         return this.packageResult(true, newHeadquarterAccount, "注册成功");
     }
 }
